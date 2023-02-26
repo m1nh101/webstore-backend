@@ -59,8 +59,8 @@ public class WebStoreContext : IdentityDbContext<User> , IWebStoreContext
     modelBuilder.ApplyConfiguration(new BillDetailEntityConfiguration());
 
     //rename asp identity table name
-    modelBuilder.Entity<User>().ToTable("Users");
-    modelBuilder.Entity<IdentityRole>().ToTable("Roles");
+    modelBuilder.Entity<User>().ToTable("Users").HasData(SeedData.CreateAdminUser());
+    modelBuilder.Entity<IdentityRole>().ToTable("Roles").HasData(SeedData.CreateRoles());
     modelBuilder.Entity<IdentityUserToken<string>>().ToTable("UserTokens");
     modelBuilder.Entity<IdentityUserRole<string>>().ToTable("UserRoles");
     modelBuilder.Entity<IdentityRoleClaim<string>>().ToTable("RoleClaims");

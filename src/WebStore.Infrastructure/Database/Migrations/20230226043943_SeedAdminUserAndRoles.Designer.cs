@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebStore.Infrastructure.Database;
 
@@ -11,9 +12,11 @@ using WebStore.Infrastructure.Database;
 namespace WebStore.Infrastructure.Database.Migrations
 {
     [DbContext(typeof(WebStoreContext))]
-    partial class WebStoreContextModelSnapshot : ModelSnapshot
+    [Migration("20230226043943_SeedAdminUserAndRoles")]
+    partial class SeedAdminUserAndRoles
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -53,13 +56,15 @@ namespace WebStore.Infrastructure.Database.Migrations
                         {
                             Id = "5d4fe3c7-8a65-46d1-8de2-e05a0fb34d5e",
                             Name = "admin",
-                            NormalizedName = "ADMIN"
+                            NormalizedName = "ADMIN",
+                            ConcurrencyStamp = "84e58e08-590f-4a55-beac-85266ef2ce2d"
                         },
                         new
                         {
                             Id = "7e7add3b-29c4-443c-9376-3ab37cb4a6a8",
                             Name = "customer",
-                            NormalizedName = "CUSTOMER"
+                            NormalizedName = "CUSTOMER",
+                            ConcurrencyStamp = "70e51335-9381-4061-b853-092d492704a3"
                         });
                 });
 
