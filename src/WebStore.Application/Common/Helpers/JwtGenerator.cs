@@ -3,15 +3,16 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using WebStore.Application.Common.Abstractions;
 using WebStore.Domain.Entities;
 
 namespace WebStore.Application.Common.Helpers;
 
-public class JwtHelper
+public class JwtGenerator : IJwtGenerator
 {
   private readonly IConfiguration _configuration;
 
-  public JwtHelper(IConfiguration configuration)
+  public JwtGenerator(IConfiguration configuration)
   {
     _configuration = configuration;
   }
@@ -39,7 +40,7 @@ public class JwtHelper
     return new ClaimsIdentity(claims);
   }
 
-  public string GenerateJwtToken(User user, IEnumerable<string> roles)
+  public string GenerateToken(User user, IEnumerable<string> roles)
   {
     var tokenHandler = new JwtSecurityTokenHandler();
     var secretTokenKey = Encoding.UTF8.GetBytes(_configuration["JWT_SECRET"]!);

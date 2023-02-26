@@ -9,10 +9,10 @@ namespace WebStore.Application.Services.Users;
 public class UserService : IUserService
 {
   private readonly UserManager<User> _userManager;
-  private readonly JwtHelper _jwt;
+  private readonly IJwtGenerator _jwt;
 
   public UserService(UserManager<User> userManager,
-    JwtHelper jwt)
+    IJwtGenerator jwt)
   {
     _userManager = userManager;
     _jwt = jwt;
@@ -65,7 +65,7 @@ public class UserService : IUserService
   {
     var roles = await _userManager.GetRolesAsync(user);
 
-    var jwtToken = _jwt.GenerateJwtToken(user, roles);
+    var jwtToken = _jwt.GenerateToken(user, roles);
 
     return new()
     {
