@@ -13,8 +13,10 @@
   "ConnectionStrings":  {
    "WebStore":  ""
   },
- "AllowedHosts":  "*"
- }
+ "AllowedHosts":  "*",
+ "JWT_SECRET": "",
+ "JWT_EFFECTIVE_DAYS": 2
+}
 ```
 
 ## database migrations

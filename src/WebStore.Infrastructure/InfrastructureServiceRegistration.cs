@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using WebStore.Application.Common.Helpers;
 using WebStore.Domain.Entities;
 using WebStore.Infrastructure.Database;
 
@@ -29,7 +30,8 @@ public static class InfrastructureServiceRegistration
 
     services.AddIdentityCore<User>()
       .AddRoles<IdentityRole>()
-      .AddEntityFrameworkStores<WebStoreContext>();
+      .AddEntityFrameworkStores<WebStoreContext>()
+      .AddErrorDescriber<UserIdentityError>();
 
     var userManager = services.BuildServiceProvider().GetRequiredService<UserManager<User>>();
     var context = services.BuildServiceProvider().GetRequiredService<WebStoreContext>();
@@ -39,17 +41,22 @@ public static class InfrastructureServiceRegistration
     return services;
   }
 
-  public static void MapAdminUser(UserManager<User> userManager, WebStoreContext context)
+  private static void MapAdminUser(UserManager<User> userManager, WebStoreContext context)
   {
     if ((context.GetService<IDatabaseCreator>() as RelationalDatabaseCreator)!.Exists())
     {
       Task.Run(async () =>
       {
-        var user = await userManager.FindByNameAsync("admin");
+        var isRoleMap = await context.Set<IdentityUserClaim<string>>().AnyAsync();
 
-        if (user == null) return;
+        if (!isRoleMap)
+        {
+          var user = await userManager.FindByNameAsync("admin");
 
-        await userManager.AddToRoleAsync(user, "admin");
+          if (user == null) return;
+
+          await userManager.AddToRoleAsync(user, "admin");
+        }
       });
     }
   }
