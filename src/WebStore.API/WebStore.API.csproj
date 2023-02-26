@@ -8,7 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="7.0.2" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.2">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.3">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\WebStore.Application\WebStore.Application.csproj" />
+    <ProjectReference Include="..\WebStore.Infrastructure\WebStore.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

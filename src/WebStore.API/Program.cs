@@ -1,6 +1,13 @@
+using WebStore.Application.Common.Abstractions;
+using WebStore.Infrastructure;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+
+builder.Services.ConfigureInfrastructureService(builder.Configuration);
+
+builder.Services.AddScoped<IUserSession, UserSession>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

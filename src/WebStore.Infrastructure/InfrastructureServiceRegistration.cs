@@ -10,7 +10,7 @@ public static class InfrastructureServiceRegistration
   public static IServiceCollection ConfigureInfrastructureService(this IServiceCollection services, IConfiguration configuration)
   {
 
-    var connectionString = configuration.GetConnectionString("WebStoreDevelopment");
+    var connectionString = configuration.GetConnectionString("WebStore");
 
     services.AddDbContext<WebStoreContext>(opt =>
     {
@@ -18,7 +18,6 @@ public static class InfrastructureServiceRegistration
       {
         setup.MigrationsAssembly(typeof(InfrastructureServiceRegistration).Assembly.FullName);
         setup.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
-
       });
 
       opt.LogTo(Console.WriteLine);

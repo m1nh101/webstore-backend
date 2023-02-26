@@ -1,11 +1,14 @@
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using WebStore.Application.Common.Abstractions;
 using WebStore.Domain.Common;
-using WebStore.Domain.Enums;
+using WebStore.Domain.Entities;
+using WebStore.Infrastructure.Database.Configs;
 
 namespace WebStore.Infrastructure.Database;
 
-public class WebStoreContext : DbContext, IWebStoreContext
+public class WebStoreContext : IdentityDbContext<User> , IWebStoreContext
 {
   private readonly IUserSession _session;
 
@@ -34,19 +37,43 @@ public class WebStoreContext : DbContext, IWebStoreContext
         entry.Entity.UpdatedAt = DateTime.Now;
         entry.Entity.UpdatedBy = _session.UserId;
       }
+
+      if(entry.State == EntityState.Deleted)
+        entry.Entity.IsDeleted = true;
     }
 
     return base.SaveChangesAsync(cancellationToken);
   }
 
+  protected override void OnModelCreating(ModelBuilder modelBuilder)
+  {
+    base.OnModelCreating(modelBuilder);
+
+    modelBuilder.ApplyConfiguration(new ProductEntityConfiguration());
+    modelBuilder.ApplyConfiguration(new SaleEntityConfiguration());
+    modelBuilder.ApplyConfiguration(new ProductVariantEntityConfiguration());
+    modelBuilder.ApplyConfiguration(new ImageEntityConfiguration());
+    modelBuilder.ApplyConfiguration(new OrderEntityConfiguration());
+    modelBuilder.ApplyConfiguration(new OrderDetailEntityConfiguration());
+    modelBuilder.ApplyConfiguration(new BillEntityConfiguration());
+    modelBuilder.ApplyConfiguration(new BillDetailEntityConfiguration());
+
+    //rename asp identity table name
+    modelBuilder.Entity<User>().ToTable("Users");
+    modelBuilder.Entity<IdentityRole>().ToTable("Roles");
+    modelBuilder.Entity<IdentityUserToken<string>>().ToTable("UserTokens");
+    modelBuilder.Entity<IdentityUserRole<string>>().ToTable("UserRoles");
+    modelBuilder.Entity<IdentityRoleClaim<string>>().ToTable("RoleClaims");
+    modelBuilder.Entity<IdentityUserClaim<string>>().ToTable("UserClaims");
+    modelBuilder.Entity<IdentityUserLogin<string>>().ToTable("UserLogins");
+  }
+
   #endregion
 
-  public IQueryable<TEntity> GetTable<TEntity>(QueryTracking tracking = QueryTracking.NoTracking)
+  public virtual DbSet<TEntity> GetTable<TEntity>()
     where TEntity : class
   {
-    return tracking == QueryTracking.Tracking 
-      ? Set<TEntity>().AsQueryable()
-      : Set<TEntity>().AsNoTracking();
+    return Set<TEntity>();
   }
 
   public Task<int> Save(CancellationToken cancellationToken = default) => SaveChangesAsync(cancellationToken);
