@@ -1,21 +1,19 @@
 using System.Net;
 using Application.Tests.Mocks;
 using Application.Tests.Setups;
+using Application.Tests.Sources;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using NUnit.Framework.Constraints;
-using WebStore.Application.Common.Abstractions;
 using WebStore.Application.Common.Contracts;
 using WebStore.Application.Common.Helpers;
 using WebStore.Application.Services.Users;
-using WebStore.Domain.Entities;
-using WebStore.Infrastructure.Database;
 
 namespace Application.Tests.IntergratedTests;
 
 public class UserServiceTest
 {
   private IUserService _userService = null!;
+  private static List<object> _trueCase = UserSources.TrueCaseDataSources;
+  private static List<object> _failCase = UserSources.FailCaseDataSource;
 
   [OneTimeSetUp]
   public async Task Setup()
@@ -45,9 +43,8 @@ public class UserServiceTest
   }
 
   [Test]
-  public async Task TestRegister(string username, string email, string password,
-    HttpStatusCode status, UserAuthenticationResponse? data, object? errors,
-    NullConstraint dataNull, NullConstraint errorNull)
+  [TestCaseSource(nameof(_trueCase))]
+  public async Task TestRegisterInTrueCase(string username, string email, string password)
   {
     var register = new UserRegistrationCredential
     {
@@ -61,21 +58,40 @@ public class UserServiceTest
     Assert.Multiple(() =>
     {
       Assert.That(result, Is.Not.Null);
-      Assert.That(result!.StatusCode, Is.EqualTo(status));
-      Assert.That(result.Data, dataNull);
-      Assert.That(result.Errors, errorNull);
-    });
+      Assert.That(result!.StatusCode, Is.EqualTo(HttpStatusCode.Created));
+      Assert.That(result.Data, Is.Not.Null);
+      Assert.That(result.Errors, Is.Null);
 
-    if(result!.Data != null)
-    {
       var userData = (result.Data as UserAuthenticationResponse)!;
 
-      Assert.Multiple(() =>
-      {
-        Assert.That(userData.Id, Is.Not.EqualTo(string.Empty));
-        Assert.That(userData.Token, Is.EqualTo("this is token"));
-        Assert.That(userData.FullName, Is.EqualTo(username));
-      });
-    }
+      Assert.That(userData.Id, Is.Not.EqualTo(string.Empty));
+      Assert.That(userData.Token, Is.EqualTo("this is token"));
+      Assert.That(userData.UserName, Is.EqualTo(username));
+    });
+  }
+
+  [Test]
+  [TestCaseSource(nameof(_failCase))]
+  public async Task TaskRegisterInFailCase(string username, string email, string password, IEnumerable<string> errorFields)
+  {
+    var register = new UserRegistrationCredential
+    {
+      UserName = username,
+      Email = email,
+      Password = password
+    };
+
+    var result = await _userService.AddNew(register) as ResponseFactory;
+
+    Assert.Multiple(() =>
+    {
+      Assert.That(result, Is.Not.Null);
+      Assert.That(result!.Data, Is.Null);
+      Assert.That(result.Errors, Is.Not.Null);
+      Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
+
+      var errors = (result.Errors as IEnumerable<IdentityError>)!.Select(e => e.Code);
+      Assert.That(errors, Is.EquivalentTo(errorFields));
+    });
   }
 }
