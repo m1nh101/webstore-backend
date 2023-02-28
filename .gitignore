@@ -1,5 +1,8 @@
 .vs
 .vscode
 
-**/bin
-**/obj
+**/**/bin
+**/**/obj
+
+src/WebStore.API/appsettings.json
+src/WebStore.API/appsettings.Development.json
