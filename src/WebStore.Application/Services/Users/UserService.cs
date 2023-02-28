@@ -23,7 +23,8 @@ public class UserService : IUserService
     var user = new User
     {
       UserName = payload.UserName,
-      Email = payload.Email
+      Email = payload.Email,
+      FullName = payload.FullName
     };
 
     var createUserResult = await _userManager.CreateAsync(user, payload.Password);
@@ -51,14 +52,34 @@ public class UserService : IUserService
     if(user == null)
       return failedAuthenicationResponse;
 
+    var checkLockout = await CheckLockOutUser(user);
+
+    if(checkLockout)
+      return ResponseFactory.Create(System.Net.HttpStatusCode.Forbidden, errors: new { Message = "Tài khoản tạm thời bị vô hiệu hóa" });
+
     var checkPassword = await _userManager.CheckPasswordAsync(user, credential.Password);
     
     if(!checkPassword)
+    {
+      await _userManager.AccessFailedAsync(user);
+
       return failedAuthenicationResponse;
+    }
+
+    await _userManager.ResetAccessFailedCountAsync(user);
 
     var data = await SucceedAuthentication(user);
 
     return ResponseFactory.Create(System.Net.HttpStatusCode.OK, data);
+  }
+
+  private async Task<bool> CheckLockOutUser(User user)
+  {
+    var isLockout = await _userManager.IsLockedOutAsync(user);
+
+    var lockoutEndTime = await _userManager.GetLockoutEndDateAsync(user);
+
+    return isLockout && lockoutEndTime > DateTime.Now;
   }
 
   private async Task<UserAuthenticationResponse> SucceedAuthentication(User user)
