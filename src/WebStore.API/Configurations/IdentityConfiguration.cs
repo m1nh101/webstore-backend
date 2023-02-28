@@ -46,7 +46,10 @@ public static class IdentityConfiguration
       options.Password.RequireNonAlphanumeric = false;
       options.Password.RequireUppercase = false;
       options.Password.RequiredLength = 6;
-
+      options.Password.RequireDigit = true;
+      options.Password.RequiredUniqueChars = 0;
+      options.Password.RequireLowercase = false;
+      
       options.User.RequireUniqueEmail = true;
 
       options.Lockout.MaxFailedAccessAttempts = 5;
