@@ -44,13 +44,15 @@ public class UserServiceTest
 
   [Test]
   [TestCaseSource(nameof(_trueCase))]
-  public async Task TestRegisterInTrueCase(string username, string email, string password)
+  [Order(1)]
+  public async Task TestRegisterInTrueCase(string username, string email, string password, string fullName)
   {
     var register = new UserRegistrationCredential
     {
       UserName = username,
       Email = email,
-      Password = password
+      Password = password,
+      FullName = fullName
     };
 
     var result = await _userService.AddNew(register) as ResponseFactory;
@@ -67,18 +69,21 @@ public class UserServiceTest
       Assert.That(userData.Id, Is.Not.EqualTo(string.Empty));
       Assert.That(userData.Token, Is.EqualTo("this is token"));
       Assert.That(userData.UserName, Is.EqualTo(username));
+      Assert.That(userData.FullName, Is.EqualTo(fullName));
     });
   }
 
   [Test]
   [TestCaseSource(nameof(_failCase))]
-  public async Task TaskRegisterInFailCase(string username, string email, string password, IEnumerable<string> errorFields)
+  [Order(2)]
+  public async Task TaskRegisterInFailCase(string username, string email, string password, string fullName, IEnumerable<string> errorFields)
   {
     var register = new UserRegistrationCredential
     {
       UserName = username,
       Email = email,
-      Password = password
+      Password = password,
+      FullName = fullName
     };
 
     var result = await _userService.AddNew(register) as ResponseFactory;
@@ -90,7 +95,7 @@ public class UserServiceTest
       Assert.That(result.Errors, Is.Not.Null);
       Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
 
-      var errors = (result.Errors as IEnumerable<IdentityError>)!.Select(e => e.Code);
+      var errors = (result.Errors as IEnumerable<IdentityError>)!.Select(e => e.Code).Distinct();
       Assert.That(errors, Is.EquivalentTo(errorFields));
     });
   }
