@@ -14,6 +14,7 @@ public class UserServiceTest
   private IUserService _userService = null!;
   private static List<object> _trueCase = UserSources.TrueCaseDataSources;
   private static List<object> _failCase = UserSources.FailCaseDataSource;
+  private static List<object> _credential = UserSources.Credentials;
 
   [OneTimeSetUp]
   public async Task Setup()
@@ -98,5 +99,42 @@ public class UserServiceTest
       var errors = (result.Errors as IEnumerable<IdentityError>)!.Select(e => e.Code).Distinct();
       Assert.That(errors, Is.EquivalentTo(errorFields));
     });
+  }
+
+  [Test]
+  [Order(3)]
+  [TestCaseSource(nameof(_credential))]
+  public async Task AuthenticateTest(string credentialName, string password, HttpStatusCode statusCode)
+  {
+    var credential = new UserCredential()
+    {
+      UserName = credentialName,
+      Password = password
+    };
+
+    var result = await _userService.Authenticate(credential);
+
+    Assert.That(result.StatusCode, Is.EqualTo(statusCode));
+  }
+
+  [Test]
+  [Order(4)]
+  [TestCase("usertest1", "wrongpassword", "1234abc")]
+  public async Task LockoutTest(string userName, string password, string righPassword)
+  {
+    var credential = new UserCredential()
+    {
+      UserName = userName,
+      Password = password
+    };
+
+    for(var i = 0; i < 5; i++)
+      await _userService.Authenticate(credential);
+
+    credential.Password = righPassword;
+
+    var result = await _userService.Authenticate(credential);
+
+    Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.Forbidden));
   }
 }

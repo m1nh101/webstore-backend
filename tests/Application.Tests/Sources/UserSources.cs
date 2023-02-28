@@ -1,3 +1,5 @@
+using System.Net;
+
 namespace Application.Tests.Sources;
 
 public static class UserSources
@@ -24,5 +26,16 @@ public static class UserSources
     new object[] { "usertest1", "usertest1@test.com", "abc", "User Test 1", new List<string> { "password" } },
     new object[] { "usertest1", "usertest1@test.com", "abcdajsdf", "User Test 1", new List<string> { "password" } },
     new object[] { "usertest11", "usertest11@test.com", "", "User Test 1", new List<string> { "password" } },
+  };
+
+  public static List<object> Credentials = new()
+  {
+    new Object[] { "usertest1", "1234abc", HttpStatusCode.OK },
+    new Object[] { "usertest1@test.com", "1234abc", HttpStatusCode.OK },
+    new Object[] { "usertest23", "1234abc", HttpStatusCode.Unauthorized },
+    new Object[] { "usertest1", "1234abcd", HttpStatusCode.Unauthorized },
+    new Object[] { "usertest1", "", HttpStatusCode.Unauthorized },
+    new Object[] { "user", "1234abc", HttpStatusCode.Unauthorized },
+    new Object[] { "", "1234abc", HttpStatusCode.Unauthorized },
   };
 }
