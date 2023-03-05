@@ -14,6 +14,7 @@ public static class ServiceConfiguration
 
     services.AddScoped<IUserService, UserService>();
 
+    services.AddScoped<IExtractDataFromToken, UserSession>();
     services.AddScoped<IOrderService, OrderService>();
 
     return services;

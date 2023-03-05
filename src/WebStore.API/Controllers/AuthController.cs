@@ -1,4 +1,6 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using WebStore.Application.Common.Abstractions;
 using WebStore.Application.Common.Contracts;
 using WebStore.Application.Services.Users;
 
@@ -45,11 +47,29 @@ public class AuthController : ControllerBase
     return Ok(response);
   }
 
-  [Route("logout")]
   [HttpDelete]
+  [Route("logout")]
+  [Authorize]
   public IActionResult Logout()
   {
     Response.Cookies.Delete("token");
     return NoContent();
+  }
+
+  [HttpPost]
+  [Authorize]
+  [Route("verify-token/{role}")]
+  public IActionResult VerifyToken([FromServices] IExtractDataFromToken extractor,
+    [FromRoute] string role)
+  {
+    var roleVerify = HttpContext.User.IsInRole(role);
+    
+    if(roleVerify)
+    {
+      var data = extractor.ExtractInfo();
+      return Ok(data);
+    }
+
+    return Unauthorized();
   }
 }
