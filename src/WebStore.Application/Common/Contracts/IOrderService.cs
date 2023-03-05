@@ -9,10 +9,10 @@ namespace WebStore.Application.Common.Contracts
 {
     public interface IOrderService
     {
-        Task<Order> AddOrderAsync(string userId, int ProductVariantId);
+        Task<Order> AddOrderAsync(string userId, int productVariantId);
         Task RemoveItemAsync(int orderId, int itemId);
-        Task ReduceQuantity(int orderId, int ProductId);
-        Task IncreaseQuantity(int orderId, int ProductId);
+        Task ReduceQuantity(int orderId, int productVariantId);
+        Task IncreaseQuantity(int orderId, int ProproductVariantIdductId);
         Task CheckOut(string userId);
     }
 }

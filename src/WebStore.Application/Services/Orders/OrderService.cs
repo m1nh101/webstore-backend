@@ -13,12 +13,11 @@ namespace WebStore.Application.Services.Orders
     public class OrderService : IOrderService
     {
         private readonly IWebStoreContext _webStoreContext;
-        private readonly OrderManager _orderManager;
+    
 
-        public OrderService(IWebStoreContext webStoreContext, OrderManager orderManager)
+        public OrderService(IWebStoreContext webStoreContext)
         {
             _webStoreContext = webStoreContext;
-            _orderManager = orderManager;
         }
 
         public async Task<Order> AddOrderAsync(string userId, int productVariantId)
@@ -68,11 +67,28 @@ namespace WebStore.Application.Services.Orders
             await _webStoreContext.Save();
             return order;
         }
-        public Task ReduceQuantity(int orderId, int ProductId)
+        
+        public async Task IncreaseQuantity(int orderId, int productVariantId)
         {
-            throw new NotImplementedException();
+            var item = await _webStoreContext.GetTable<OrderDetail>().FirstOrDefaultAsync(x => x.OrderId == orderId && x.ProductVariantId == productVariantId);
+            if(item == null)
+                throw new NullReferenceException(nameof(item));
+            var order = await _webStoreContext.GetTable<Order>().Include(x=>x.Items).FirstOrDefaultAsync(x=>x.Id == orderId);
+            if(order == null)
+                throw new NullReferenceException(nameof(item));
+            var variant = await _webStoreContext.GetTable<ProductVariant>().FirstOrDefaultAsync(x=>x.Id == productVariantId);
+            if(variant == null)
+                throw new NullReferenceException(nameof(item));
+            if(item.Quantity == variant.Quantity)
+                return;
+            item.Quantity++;
+            item.Total += variant.Price;
+            order.Total += variant.Price;
+            _webStoreContext.GetTable<OrderDetail>().Update(item);
+            _webStoreContext.GetTable<Order>().Update(order);
+            await _webStoreContext.Save();
         }
-        public Task IncreaseQuantity(int orderId, int ProductId)
+        public Task ReduceQuantity(int orderId, int productVariantId)
         {
             throw new NotImplementedException();
         }
