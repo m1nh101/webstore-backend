@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using WebStore.Application.Common.Abstractions;
 using WebStore.Application.Common.Helpers;
 using WebStore.Domain.Entities;
 using WebStore.Infrastructure.Database;
@@ -32,6 +33,8 @@ public static class InfrastructureServiceRegistration
       .AddRoles<IdentityRole>()
       .AddEntityFrameworkStores<WebStoreContext>()
       .AddErrorDescriber<UserIdentityError>();
+
+    services.AddScoped<IWebStoreContext, WebStoreContext>();
 
     var userManager = services.BuildServiceProvider().GetRequiredService<UserManager<User>>();
     var context = services.BuildServiceProvider().GetRequiredService<WebStoreContext>();

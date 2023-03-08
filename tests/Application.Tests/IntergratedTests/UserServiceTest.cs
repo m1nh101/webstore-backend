@@ -61,8 +61,7 @@ public class UserServiceTest
     Assert.Multiple(() =>
     {
       Assert.That(result, Is.Not.Null);
-      Assert.That(result!.StatusCode, Is.EqualTo(HttpStatusCode.Created));
-      Assert.That(result.Data, Is.Not.Null);
+      Assert.That(result!.Data, Is.Not.Null);
       Assert.That(result.Errors, Is.Null);
 
       var userData = (result.Data as UserAuthenticationResponse)!;
@@ -94,7 +93,6 @@ public class UserServiceTest
       Assert.That(result, Is.Not.Null);
       Assert.That(result!.Data, Is.Null);
       Assert.That(result.Errors, Is.Not.Null);
-      Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
 
       var errors = (result.Errors as IEnumerable<IdentityError>)!.Select(e => e.Code).Distinct();
       Assert.That(errors, Is.EquivalentTo(errorFields));
@@ -104,7 +102,7 @@ public class UserServiceTest
   [Test]
   [Order(3)]
   [TestCaseSource(nameof(_credential))]
-  public async Task AuthenticateTest(string credentialName, string password, HttpStatusCode statusCode)
+  public async Task AuthenticateTest(string credentialName, string password, bool isSuccess)
   {
     var credential = new UserCredential()
     {
@@ -114,7 +112,10 @@ public class UserServiceTest
 
     var result = await _userService.Authenticate(credential);
 
-    Assert.That(result.StatusCode, Is.EqualTo(statusCode));
+    if(isSuccess)
+      Assert.That(result!.Data, Is.Not.Null);
+    else
+      Assert.That(result.Data, Is.Null);
   }
 
   [Test]
@@ -135,6 +136,6 @@ public class UserServiceTest
 
     var result = await _userService.Authenticate(credential);
 
-    Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.Forbidden));
+    Assert.That(result.Data, Is.Null);
   }
 }

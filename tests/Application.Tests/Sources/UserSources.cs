@@ -30,12 +30,12 @@ public static class UserSources
 
   public static List<object> Credentials = new()
   {
-    new Object[] { "usertest1", "1234abc", HttpStatusCode.OK },
-    new Object[] { "usertest1@test.com", "1234abc", HttpStatusCode.OK },
-    new Object[] { "usertest23", "1234abc", HttpStatusCode.Unauthorized },
-    new Object[] { "usertest1", "1234abcd", HttpStatusCode.Unauthorized },
-    new Object[] { "usertest1", "", HttpStatusCode.Unauthorized },
-    new Object[] { "user", "1234abc", HttpStatusCode.Unauthorized },
-    new Object[] { "", "1234abc", HttpStatusCode.Unauthorized },
+    new Object[] { "usertest1", "1234abc", true },
+    new Object[] { "usertest1@test.com", "1234abc", true },
+    new Object[] { "usertest23", "1234abc", false },
+    new Object[] { "usertest1", "1234abcd", false },
+    new Object[] { "usertest1", "", false },
+    new Object[] { "user", "1234abc", false },
+    new Object[] { "", "1234abc", false },
   };
 }

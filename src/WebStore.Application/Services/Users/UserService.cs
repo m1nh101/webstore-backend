@@ -38,7 +38,7 @@ public class UserService : IUserService
       return ResponseFactory.Create(System.Net.HttpStatusCode.Created, data);
     }
 
-    return ResponseFactory.Create(System.Net.HttpStatusCode.BadRequest, errors: createUserResult.Errors);
+    return ResponseFactory.Create(errors: createUserResult.Errors);
   }
 
   public async Task<IResponse> Authenticate(UserCredential credential)
@@ -55,7 +55,7 @@ public class UserService : IUserService
     var checkLockout = await CheckLockOutUser(user);
 
     if(checkLockout)
-      return ResponseFactory.Create(System.Net.HttpStatusCode.Forbidden, errors: new { Message = "Tài khoản tạm thời bị vô hiệu hóa" });
+      return ResponseFactory.Create(errors: new { Message = "Tài khoản tạm thời bị vô hiệu hóa" });
 
     var checkPassword = await _userManager.CheckPasswordAsync(user, credential.Password);
     
@@ -70,7 +70,7 @@ public class UserService : IUserService
 
     var data = await SucceedAuthentication(user);
 
-    return ResponseFactory.Create(System.Net.HttpStatusCode.OK, data);
+    return ResponseFactory.Create(data);
   }
 
   private async Task<bool> CheckLockOutUser(User user)
