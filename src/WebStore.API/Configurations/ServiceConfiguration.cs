@@ -13,6 +13,7 @@ public static class ServiceConfiguration
 
     services.AddScoped<IUserService, UserService>();
 
+    services.AddScoped<IExtractDataFromToken, UserSession>();
     return services;
   }
 }
