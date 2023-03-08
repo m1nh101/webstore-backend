@@ -23,7 +23,7 @@ public class AuthController : ControllerBase
   {
     var response = await _service.Authenticate(credential);
 
-    if(response.StatusCode != System.Net.HttpStatusCode.OK)
+    if(response.Data == null)
       return Unauthorized(response);
     
     var data = response.Data as UserAuthenticationResponse;
@@ -38,7 +38,7 @@ public class AuthController : ControllerBase
   {
     var response = await _service.AddNew(credential);
 
-    if(response.StatusCode != System.Net.HttpStatusCode.Created)
+    if(response.Data == null)
       return BadRequest(response);
 
     var data = response.Data as UserAuthenticationResponse;
