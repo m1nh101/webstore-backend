@@ -31,7 +31,7 @@ public class AuthController : ControllerBase
 
     return Ok(response);
   }
-
+  
   [Route("register")]
   [HttpPost]
   public async Task<IActionResult> Register([FromBody] UserRegistrationCredential credential)
