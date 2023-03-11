@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,27 +21,29 @@ namespace WebStore.Application.Services.Orders
             _webStoreContext = webStoreContext;
         }
 
-        public async Task<Order> AddOrderAsync(string userId, int productVariantId)
+        public async Task<Order> AddOrderAsync([NotNull] string userId,[NotNull] int productVariantId)
         {
-            var product = await _webStoreContext.GetTable<ProductVariant>().FindAsync(productVariantId);
+            var variant = await _webStoreContext.GetTable<ProductVariant>().FirstOrDefaultAsync(x=>x.Id == productVariantId);
+            if(variant == null)
+                throw new NullReferenceException(nameof(variant));
             var order = await _webStoreContext.GetTable<Order>().Include(c=>c.Items).Include(c=>c.User).FirstOrDefaultAsync(c=>c.UserId == userId);
-            var item = order.Items?.FirstOrDefault(c=>c.ProductVariantId == productVariantId);
             if(order == null)
+                order = new Order();
+            var item = order.Items?.FirstOrDefault(c=>c.ProductVariantId == productVariantId);
+            if(order.Id == 0)
             {
                 order.CreatedAt = DateTime.Now;
-                order.CreatedBy = order.User.UserName;
                 order.UserId  = userId;
                 order.Items = new List<OrderDetail>
                 {
                     new OrderDetail()
                     {
-                        ProductVariantId = product.Id,
+                        ProductVariantId = variant.Id,
                         Quantity = 1,
-                        Total = product.Price,
-                        OrderId = order.Id,
+                        Total = variant.Price
                     }
                 };
-                order.Total = product.Price;
+                order.Total = variant.Price;
                 await _webStoreContext.GetTable<Order>().AddAsync(order);
                 await _webStoreContext.Save();
                 return order;
@@ -48,8 +51,8 @@ namespace WebStore.Application.Services.Orders
             if (item != null)
             {
                 item.Quantity++;
-                item.Total = product.Price * product.Quantity;
-                order.Total += product.Price;
+                item.Total = variant.Price * variant.Quantity;
+                order.Total += variant.Price;
                 _webStoreContext.GetTable<Order>().Update(order);
                 await _webStoreContext.Save();
                 return order;
@@ -57,9 +60,9 @@ namespace WebStore.Application.Services.Orders
              var Detail = new OrderDetail 
              {
                  OrderId = order.Id, 
-                 Total = product.Price, 
+                 Total = variant.Price, 
                  Quantity = 1, 
-                 ProductVariantId = product.Id
+                 ProductVariantId = variant.Id
              };
             order.Total += Detail.Total;
             _webStoreContext.GetTable<OrderDetail>().Update(Detail);

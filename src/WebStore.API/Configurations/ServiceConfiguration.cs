@@ -8,15 +8,17 @@ namespace WebStore.API.Configurations;
 
 public static class ServiceConfiguration
 {
-  public static IServiceCollection RegisterService(this IServiceCollection services)
-  {
-    services.AddSingleton<IJwtGenerator, JwtGenerator>();
+    public static IServiceCollection RegisterService(this IServiceCollection services)
+    {
+        services.AddSingleton<IJwtGenerator, JwtGenerator>();
 
-    services.AddScoped<IUserService, UserService>();
+        services.AddScoped<IUserService, UserService>();
 
-    services.AddScoped<IExtractDataFromToken, UserSession>();
-    services.AddScoped<IOrderService, OrderService>();
+        services.AddScoped<IOrderService, OrderService>();
 
-    return services;
-  }
+        services.AddScoped<IExtractDataFromToken, UserSession>();
+
+
+        return services;
+    }
 }
