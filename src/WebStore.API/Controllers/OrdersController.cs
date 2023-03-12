@@ -15,11 +15,28 @@ namespace WebStore.API.Controllers
         {
             _orderService = orderService;
         }
+
         [HttpPost]
-        public async Task<IActionResult> PostToOrder(string userId, int productVariantId)
+        [Route("{productVariantId:int}")]
+        public async Task<IActionResult> AddItem(int productVariantId)
         {
-            var result = await _orderService.AddOrderAsync(userId, productVariantId);
+            var result = await _orderService.AddItemToOrderAsync(productVariantId);
             return Ok(result);
+        }
+
+        [HttpPatch]
+        [Route("{id:int}")]
+        public async Task<IActionResult> UpdateItem([FromRoute] int id)
+        {
+            await _orderService.IncreaseQuantity(id);
+            return NoContent();
+        }
+
+        [HttpDelete]
+        [Route("{id:int}")]
+        public async Task<IActionResult> RemoveItem(int id)
+        {
+            return Ok();
         }
     }
 }
